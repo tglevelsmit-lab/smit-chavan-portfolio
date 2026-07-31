@@ -1,0 +1,1146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Smit Chavan — Full Stack Developer &amp; Tech Lead</title>
+<meta name="description" content="Smit Nitin Chavan — Full Stack Developer, Tech Lead, MERN &amp; React Native engineer building fintech and trading platforms." />
+<meta name="theme-color" content="#04060c" />
+
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Smit Chavan — Full Stack Developer & Tech Lead" />
+<meta property="og:description" content="MERN · React Native · Node.js — leading a team building live trading & fintech products." />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%2304060c'/><text y='72' x='50' text-anchor='middle' font-size='58' font-family='monospace' font-weight='bold' fill='%2300e5ff'>S</text></svg>" />
+
+<style>
+/* ============================================================
+   TOKENS
+   ============================================================ */
+:root{
+  --bg:#060a14;
+  --bg-2:#0b1120;
+  --panel:rgba(255,255,255,.05);
+  --panel-2:rgba(255,255,255,.08);
+  --line:rgba(140,200,255,.22);
+  --line-hot:rgba(34,240,255,.6);
+
+  --cy:#22f0ff;
+  --vi:#c084fc;
+  --lime:#7dff9e;
+
+  --white:#f4f9ff;
+  --txt:#cfdcee;   /* 14.2:1 on --bg */
+  --dim:#8fa3bd;   /*  7.7:1 on --bg */
+
+  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  --sans:"Space Grotesk",system-ui,-apple-system,Segoe UI,sans-serif;
+
+  --nav-h:74px;
+  --max:1680px;
+  --gut:clamp(20px,4vw,64px);
+  --ease:cubic-bezier(.22,1,.36,1);
+}
+
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--txt);
+  font-family:var(--sans);
+  font-size:16px;
+  line-height:1.7;
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+img{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+::selection{background:var(--cy);color:#02040a}
+
+/* scrollbar */
+::-webkit-scrollbar{width:10px}
+::-webkit-scrollbar-track{background:#03050a}
+::-webkit-scrollbar-thumb{background:linear-gradient(var(--cy),var(--vi));border-radius:99px;border:3px solid #03050a}
+
+/* ============================================================
+   BACKDROP LAYERS
+   ============================================================ */
+#bg-canvas{position:fixed;inset:0;z-index:0;pointer-events:none}
+.grid-floor{
+  position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.9;
+  background-image:
+    linear-gradient(rgba(34,240,255,.10) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(34,240,255,.10) 1px,transparent 1px);
+  background-size:clamp(48px,5vw,88px) clamp(48px,5vw,88px);
+  mask-image:radial-gradient(ellipse 85% 65% at 50% 0%,#000 15%,transparent 80%);
+  -webkit-mask-image:radial-gradient(ellipse 85% 65% at 50% 0%,#000 15%,transparent 80%);
+}
+.glow-a,.glow-b{position:fixed;border-radius:50%;filter:blur(110px);z-index:0;pointer-events:none}
+.glow-a{width:52vw;height:52vw;background:rgba(34,240,255,.22);top:-16vw;left:-12vw}
+.glow-b{width:46vw;height:46vw;background:rgba(192,132,252,.20);bottom:-14vw;right:-10vw}
+.scanlines{
+  position:fixed;inset:0;z-index:2;pointer-events:none;opacity:.18;
+  background:repeating-linear-gradient(180deg,rgba(255,255,255,.03) 0 1px,transparent 1px 4px);
+}
+.vignette{
+  position:fixed;inset:0;z-index:2;pointer-events:none;
+  background:radial-gradient(ellipse at 50% 45%,transparent 70%,rgba(0,0,0,.42) 100%);
+}
+
+/* ============================================================
+   BOOT SCREEN
+   ============================================================ */
+#boot{
+  position:fixed;inset:0;z-index:9999;background:var(--bg);
+  display:none;align-items:center;justify-content:center;
+  transition:opacity .7s var(--ease),visibility .7s;
+}
+/* only ever shown when JS is alive to dismiss it again */
+.js #boot{display:flex}
+#boot.done{opacity:0;visibility:hidden}
+.boot-inner{width:min(520px,86vw);font-family:var(--mono);font-size:12.5px}
+.boot-log{color:var(--dim);min-height:132px}
+.boot-log b{color:var(--lime);font-weight:400}
+.boot-log .ok{color:var(--cy)}
+.boot-bar{height:2px;background:rgba(255,255,255,.08);margin-top:18px;overflow:hidden}
+.boot-bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--cy),var(--vi));box-shadow:0 0 14px var(--cy)}
+.boot-pct{display:flex;justify-content:space-between;color:var(--dim);margin-top:10px;letter-spacing:.14em;font-size:10.5px}
+
+/* ============================================================
+   CURSOR + PROGRESS
+   ============================================================ */
+#cursor,#cursor-dot{position:fixed;z-index:9998;pointer-events:none;border-radius:50%;left:0;top:0}
+#cursor{width:34px;height:34px;border:1px solid rgba(0,229,255,.55);margin:-17px 0 0 -17px;transition:width .25s,height .25s,margin .25s,background .25s,border-color .25s}
+#cursor.grow{width:60px;height:60px;margin:-30px 0 0 -30px;background:rgba(0,229,255,.08);border-color:var(--cy)}
+#cursor-dot{width:5px;height:5px;background:var(--cy);margin:-2.5px 0 0 -2.5px;box-shadow:0 0 10px var(--cy)}
+@media (hover:none),(max-width:900px){#cursor,#cursor-dot{display:none}}
+
+#progress{position:fixed;top:0;left:0;height:2px;width:0;z-index:9997;background:linear-gradient(90deg,var(--cy),var(--vi),var(--lime));box-shadow:0 0 12px rgba(0,229,255,.8)}
+
+/* ============================================================
+   NAV
+   ============================================================ */
+header{
+  position:fixed;top:0;left:0;right:0;height:var(--nav-h);z-index:900;
+  display:flex;align-items:center;
+  border-bottom:1px solid transparent;transition:.35s var(--ease);
+}
+header.stuck{
+  background:rgba(6,10,20,.82);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  border-bottom-color:var(--line);
+}
+.nav{width:100%;max-width:var(--max);margin:0 auto;padding:0 var(--gut);display:flex;align-items:center;justify-content:space-between;gap:20px}
+.brand{display:flex;align-items:center;gap:11px;font-family:var(--mono);font-weight:700;letter-spacing:.04em;color:var(--white);font-size:14px}
+.brand .mark{
+  width:30px;height:30px;display:grid;place-items:center;font-size:14px;color:var(--cy);
+  border:1px solid var(--line-hot);background:rgba(0,229,255,.07);
+  clip-path:polygon(22% 0,100% 0,100% 78%,78% 100%,0 100%,0 22%);
+}
+.brand .mark span{animation:flick 5s infinite}
+@keyframes flick{0%,96%,100%{opacity:1}97%{opacity:.25}98%{opacity:1}99%{opacity:.4}}
+
+.links{display:flex;align-items:center;gap:4px}
+.links a{
+  font-family:var(--mono);font-size:12px;letter-spacing:.06em;color:var(--dim);
+  padding:8px 13px;position:relative;transition:color .25s;
+}
+.links a i{color:rgba(0,229,255,.4);font-style:normal;margin-right:5px;font-size:10px}
+.links a::after{content:"";position:absolute;left:13px;right:13px;bottom:2px;height:1px;background:var(--cy);transform:scaleX(0);transform-origin:left;transition:transform .3s var(--ease)}
+.links a:hover,.links a.active{color:var(--white)}
+.links a.active::after,.links a:hover::after{transform:scaleX(1)}
+
+.nav-cta{
+  font-family:var(--mono);font-size:11.5px;letter-spacing:.1em;color:var(--cy);
+  padding:9px 16px;border:1px solid var(--line-hot);background:rgba(0,229,255,.06);
+  clip-path:polygon(10px 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%,0 10px);
+  transition:.25s;
+}
+.nav-cta:hover{background:var(--cy);color:#02040a;box-shadow:0 0 24px rgba(0,229,255,.45)}
+
+.burger{display:none;width:42px;height:42px;border:1px solid var(--line);background:transparent;cursor:pointer;padding:0;place-items:center}
+.burger span{display:block;width:18px;height:1.5px;background:var(--white);margin:3px auto;transition:.3s}
+.burger.open span:nth-child(1){transform:translateY(4.5px) rotate(45deg)}
+.burger.open span:nth-child(2){opacity:0}
+.burger.open span:nth-child(3){transform:translateY(-4.5px) rotate(-45deg)}
+
+@media(max-width:920px){
+  .links{
+    position:fixed;inset:var(--nav-h) 0 auto 0;flex-direction:column;align-items:stretch;gap:0;
+    background:rgba(6,10,20,.98);backdrop-filter:blur(16px);border-bottom:1px solid var(--line);
+    padding:10px var(--gut) 24px;transform:translateY(-14px);opacity:0;visibility:hidden;transition:.3s var(--ease);
+  }
+  .links.open{transform:none;opacity:1;visibility:visible}
+  .links a{padding:14px 0;font-size:14px;border-bottom:1px solid rgba(255,255,255,.05)}
+  .links a::after{display:none}
+  .burger{display:grid}
+  .nav-cta{display:none}
+}
+
+/* ============================================================
+   LAYOUT PRIMITIVES
+   ============================================================ */
+main{position:relative;z-index:1}
+section{max-width:var(--max);margin:0 auto;padding:clamp(72px,8vw,140px) var(--gut);position:relative}
+
+.sec-head{margin-bottom:52px}
+.sec-tag{
+  font-family:var(--mono);font-size:11.5px;letter-spacing:.28em;color:var(--cy);
+  display:flex;align-items:center;gap:12px;margin-bottom:16px;text-transform:uppercase;
+}
+.sec-tag::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--line-hot),transparent)}
+.sec-title{
+  font-size:clamp(30px,4.4vw,62px);line-height:1.08;color:var(--white);
+  font-weight:600;letter-spacing:-.02em;margin:0;
+}
+.sec-title em{font-style:normal;color:transparent;background:linear-gradient(100deg,var(--cy),var(--vi));-webkit-background-clip:text;background-clip:text}
+.sec-sub{margin:14px 0 0;max-width:78ch;color:var(--dim);font-size:clamp(15px,1.1vw,17px)}
+
+/* panels */
+.panel{
+  background:linear-gradient(160deg,rgba(140,200,255,.10),rgba(140,200,255,.03));
+  border:1px solid var(--line);position:relative;
+  clip-path:polygon(0 0,calc(100% - 16px) 0,100% 16px,100% 100%,16px 100%,0 calc(100% - 16px));
+}
+.panel::before{
+  content:"";position:absolute;inset:0;opacity:0;transition:opacity .4s;pointer-events:none;
+  background:radial-gradient(420px circle at var(--mx,50%) var(--my,50%),rgba(34,240,255,.16),transparent 60%);
+}
+.panel:hover::before{opacity:1}
+
+/* reveal — only hidden when JS is confirmed alive, so a script failure
+   can never leave the page looking blank */
+.js .rv{opacity:0;transform:translateY(28px);transition:opacity .8s var(--ease),transform .8s var(--ease)}
+.js .rv.in{opacity:1;transform:none}
+
+/* ============================================================
+   HERO
+   ============================================================ */
+#hero{min-height:100svh;display:flex;align-items:center;padding-top:var(--nav-h);max-width:100%}
+.hero-wrap{max-width:var(--max);margin:0 auto;padding:0 var(--gut);width:100%}
+.hero-grid{display:grid;grid-template-columns:1.1fr minmax(min(100%,320px),.9fr);gap:clamp(32px,5vw,80px);align-items:center}
+@media(max-width:1000px){.hero-grid{grid-template-columns:1fr}}
+
+/* --- hero HUD --- */
+.hud{padding:22px;font-family:var(--mono)}
+@media(max-width:1000px){.hud{display:none}}
+.hud-head{display:flex;align-items:center;justify-content:space-between;padding-bottom:12px;border-bottom:1px solid var(--line);margin-bottom:16px}
+.hud-head .t{font-size:10.5px;letter-spacing:.22em;color:var(--cy)}
+.hud-head .s{font-size:9.5px;letter-spacing:.14em;color:var(--lime)}
+.hud-row{display:flex;justify-content:space-between;align-items:center;gap:14px;padding:7px 0;font-size:11.5px}
+.hud-row .k{color:var(--dim);letter-spacing:.12em}
+.hud-row .v{color:var(--white)}
+.hud-row .v.acc{color:var(--cy)}
+
+.hud-meters{margin-top:18px;padding-top:16px;border-top:1px solid var(--line);display:grid;gap:11px}
+.meter .lbl{display:flex;justify-content:space-between;font-size:10px;letter-spacing:.12em;color:var(--dim);margin-bottom:5px}
+.meter .lbl b{color:var(--txt);font-weight:400}
+.meter .track{height:3px;background:rgba(255,255,255,.07);overflow:hidden}
+.meter .fill{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--cy),var(--vi));box-shadow:0 0 10px rgba(0,229,255,.5);transition:width 1.4s var(--ease)}
+
+.hud-wave{margin-top:18px;height:44px;width:100%;display:block;opacity:.9}
+
+.status{
+  display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:11px;
+  letter-spacing:.18em;color:var(--lime);border:1px solid rgba(125,255,158,.25);
+  background:rgba(125,255,158,.05);padding:7px 14px;margin-bottom:26px;text-transform:uppercase;
+}
+.status .dot{width:6px;height:6px;border-radius:50%;background:var(--lime);box-shadow:0 0 0 0 rgba(125,255,158,.6);animation:pulse 2s infinite}
+@keyframes pulse{70%{box-shadow:0 0 0 8px rgba(125,255,158,0)}100%{box-shadow:0 0 0 0 rgba(125,255,158,0)}}
+
+.hero-name{
+  font-size:clamp(44px,9vw,132px);line-height:.92;font-weight:700;letter-spacing:-.035em;
+  color:var(--white);margin:0 0 6px;position:relative;
+}
+.hero-name .l2{display:block;color:transparent;background:linear-gradient(100deg,var(--cy) 0%,var(--vi) 60%,var(--cy) 100%);background-size:200% auto;-webkit-background-clip:text;background-clip:text;animation:shimmer 6s linear infinite}
+@keyframes shimmer{to{background-position:200% center}}
+
+.glitch{position:relative;display:inline-block}
+.glitch::before,.glitch::after{
+  content:attr(data-text);position:absolute;inset:0;background:var(--bg);
+  clip-path:inset(0 0 100% 0);opacity:.85;
+}
+.glitch::before{color:var(--cy);animation:g1 4.5s infinite steps(2)}
+.glitch::after{color:var(--vi);animation:g2 5.5s infinite steps(2)}
+@keyframes g1{
+  0%,92%,100%{clip-path:inset(0 0 100% 0);transform:none}
+  93%{clip-path:inset(12% 0 66% 0);transform:translate(-3px,0)}
+  95%{clip-path:inset(48% 0 26% 0);transform:translate(3px,0)}
+  97%{clip-path:inset(78% 0 8% 0);transform:translate(-2px,0)}
+}
+@keyframes g2{
+  0%,90%,100%{clip-path:inset(0 0 100% 0);transform:none}
+  91%{clip-path:inset(62% 0 18% 0);transform:translate(3px,0)}
+  94%{clip-path:inset(22% 0 58% 0);transform:translate(-3px,0)}
+}
+
+.hero-role{
+  font-family:var(--mono);font-size:clamp(14px,2.4vw,20px);color:var(--txt);
+  margin:18px 0 0;letter-spacing:.02em;min-height:1.7em;
+}
+.hero-role .pre{color:var(--vi)}
+.hero-role .tw{color:var(--white)}
+.caret{display:inline-block;width:9px;height:1.05em;background:var(--cy);vertical-align:-2px;margin-left:3px;animation:blink 1.05s steps(1) infinite;box-shadow:0 0 10px var(--cy)}
+@keyframes blink{50%{opacity:0}}
+
+.hero-desc{max-width:58ch;margin:26px 0 0;font-size:clamp(16px,1.2vw,19px);color:var(--txt)}
+.hero-desc b{color:var(--white);font-weight:500}
+
+.hero-actions{display:flex;flex-wrap:wrap;gap:14px;margin-top:36px}
+.btn{
+  font-family:var(--mono);font-size:12.5px;letter-spacing:.1em;text-transform:uppercase;
+  padding:14px 26px;border:1px solid var(--line-hot);color:var(--cy);position:relative;overflow:hidden;
+  clip-path:polygon(12px 0,100% 0,100% calc(100% - 12px),calc(100% - 12px) 100%,0 100%,0 12px);
+  transition:color .3s,box-shadow .3s;cursor:pointer;background:transparent;
+}
+.btn::before{content:"";position:absolute;inset:0;background:var(--cy);transform:translateY(101%);transition:transform .38s var(--ease);z-index:-1}
+.btn:hover{color:#02040a;box-shadow:0 0 30px rgba(0,229,255,.35)}
+.btn:hover::before{transform:none}
+.btn span{position:relative;z-index:1}
+.btn.ghost{border-color:var(--line);color:var(--txt)}
+.btn.ghost::before{background:var(--vi)}
+.btn.ghost:hover{color:#fff;box-shadow:0 0 30px rgba(168,85,247,.3)}
+
+/* stats */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;margin-top:64px;background:var(--line);border:1px solid var(--line)}
+.stat{background:var(--bg);padding:22px 20px;transition:background .3s}
+.stat:hover{background:var(--bg-2)}
+.stat .n{font-family:var(--mono);font-size:clamp(24px,4vw,34px);font-weight:700;color:var(--white);line-height:1}
+.stat .n .u{color:var(--cy);font-size:.6em}
+.stat .k{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;color:var(--dim);margin-top:9px;text-transform:uppercase}
+@media(max-width:760px){.stats{grid-template-columns:repeat(2,1fr)}}
+
+.scroll-hint{
+  position:absolute;bottom:28px;left:50%;transform:translateX(-50%);
+  font-family:var(--mono);font-size:10px;letter-spacing:.24em;color:var(--dim);
+  display:flex;flex-direction:column;align-items:center;gap:10px;
+}
+.scroll-hint .rail{width:1px;height:40px;background:linear-gradient(var(--cy),transparent);animation:drop 2s infinite}
+@keyframes drop{0%{opacity:0;transform:scaleY(.2)}40%{opacity:1}100%{opacity:0;transform:scaleY(1) translateY(14px)}}
+@media(max-width:900px){.scroll-hint{display:none}}
+
+/* ============================================================
+   ABOUT
+   ============================================================ */
+.about-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:40px;align-items:start}
+@media(max-width:900px){.about-grid{grid-template-columns:1fr;gap:32px}}
+.about-copy{max-width:68ch}
+.about-copy p{margin:0 0 18px;font-size:clamp(15.5px,1.15vw,18px)}
+.about-copy b{color:var(--white);font-weight:500}
+.about-copy .hl{color:var(--cy)}
+
+.chips{display:flex;flex-wrap:wrap;gap:9px;margin-top:26px}
+.chip{
+  font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--txt);
+  padding:6px 12px;border:1px solid var(--line);background:var(--panel);transition:.25s;
+}
+.chip:hover{border-color:var(--line-hot);color:var(--cy);background:rgba(0,229,255,.06);transform:translateY(-2px)}
+
+/* terminal */
+.term{font-family:var(--mono);font-size:12.5px;line-height:1.85}
+.term-bar{display:flex;align-items:center;gap:8px;padding:11px 16px;border-bottom:1px solid var(--line);background:rgba(255,255,255,.03)}
+.term-bar i{width:9px;height:9px;border-radius:50%;display:block}
+.term-bar .t{margin-left:8px;color:var(--dim);font-size:11px;letter-spacing:.08em}
+.term-body{padding:18px 18px 22px;color:var(--txt)}
+.term-body .c{color:var(--dim)}
+.term-body .k{color:var(--vi)}
+.term-body .s{color:var(--lime)}
+.term-body .p{color:var(--cy)}
+.term-body .row{white-space:pre-wrap;word-break:break-word}
+
+/* ============================================================
+   EXPERIENCE
+   ============================================================ */
+.tl{position:relative;padding-left:34px}
+.tl::before{content:"";position:absolute;left:7px;top:6px;bottom:6px;width:1px;background:linear-gradient(180deg,var(--cy),var(--vi),transparent)}
+.job{position:relative;padding-bottom:52px}
+.job:last-child{padding-bottom:0}
+.job::before{
+  content:"";position:absolute;left:-31px;top:7px;width:11px;height:11px;
+  background:var(--bg);border:2px solid var(--cy);border-radius:50%;box-shadow:0 0 0 4px var(--bg),0 0 16px rgba(0,229,255,.6);
+}
+.job.now::before{background:var(--cy);animation:pulse2 2.4s infinite}
+@keyframes pulse2{0%,100%{box-shadow:0 0 0 4px var(--bg),0 0 10px rgba(0,229,255,.5)}50%{box-shadow:0 0 0 4px var(--bg),0 0 26px rgba(0,229,255,1)}}
+
+.job-top{display:flex;justify-content:space-between;align-items:baseline;gap:16px;flex-wrap:wrap}
+.job h3{margin:0;font-size:20px;color:var(--white);font-weight:600;letter-spacing:-.01em}
+.job .when{font-family:var(--mono);font-size:11.5px;letter-spacing:.1em;color:var(--dim);white-space:nowrap}
+.job .now-tag{color:var(--lime)}
+.job .where{font-family:var(--mono);font-size:12.5px;color:var(--cy);margin:7px 0 16px}
+.job .where span{color:var(--dim)}
+.job ul{margin:0;padding:0;list-style:none;display:grid;gap:10px;max-width:105ch}
+.job li{position:relative;padding-left:22px;font-size:clamp(14.8px,1.1vw,17px)}
+.job li::before{content:"▹";position:absolute;left:0;color:var(--vi)}
+.job li b{color:var(--white);font-weight:500}
+
+/* ============================================================
+   SKILLS
+   ============================================================ */
+/* explicit column counts — auto-fit gave 5 columns for 6 panels,
+   stranding one on its own row */
+.skills{display:grid;grid-template-columns:1fr;gap:18px}
+@media(min-width:640px){.skills{grid-template-columns:repeat(2,1fr)}}
+@media(min-width:1100px){.skills{grid-template-columns:repeat(3,1fr)}}
+.skill{padding:24px}
+.skill h4{
+  margin:0 0 16px;font-family:var(--mono);font-size:11.5px;letter-spacing:.2em;
+  color:var(--cy);text-transform:uppercase;display:flex;align-items:center;gap:10px;
+}
+.skill h4::before{content:"";width:16px;height:1px;background:var(--cy)}
+.skill ul{margin:0;padding:0;list-style:none;display:flex;flex-wrap:wrap;gap:8px}
+.skill li{
+  font-family:var(--mono);font-size:11.5px;color:var(--txt);padding:5px 11px;
+  border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.02);transition:.22s;
+}
+.skill li:hover{color:var(--white);border-color:var(--line-hot);background:rgba(0,229,255,.07)}
+
+/* ============================================================
+   PROJECTS
+   ============================================================ */
+/* min() lets the track collapse below 320px on narrow phones instead of
+   forcing an overflow */
+.projects{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:18px}
+.proj{padding:26px;display:flex;flex-direction:column;transition:transform .4s var(--ease),border-color .4s}
+.proj:hover{transform:translateY(-5px);border-color:var(--line-hot)}
+.proj.feat{grid-column:1/-1;background:linear-gradient(140deg,rgba(0,229,255,.07),rgba(168,85,247,.05) 55%,rgba(255,255,255,.01))}
+.proj-top{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;margin-bottom:12px;flex-wrap:wrap}
+.proj h3{margin:0;font-size:19px;color:var(--white);font-weight:600}
+.proj .idx{font-family:var(--mono);font-size:11px;color:var(--dim);letter-spacing:.14em}
+.proj .badge{
+  font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--lime);border:1px solid rgba(125,255,158,.3);padding:3px 9px;white-space:nowrap;
+}
+.proj p{margin:0 0 20px;font-size:clamp(14.6px,1.05vw,16.5px);flex:1}
+.proj .stack{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:18px}
+.proj .stack span{font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;color:var(--vi);border:1px solid rgba(168,85,247,.22);padding:3px 9px}
+.proj-links{display:flex;flex-wrap:wrap;gap:8px}
+.proj-links a{
+  font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:var(--dim);
+  border-bottom:1px solid rgba(255,255,255,.12);padding-bottom:2px;transition:.22s;
+}
+.proj-links a:hover{color:var(--cy);border-color:var(--cy)}
+.proj-links a::after{content:" ↗";opacity:.6}
+
+/* ============================================================
+   EDUCATION
+   ============================================================ */
+.edu{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media(max-width:760px){.edu{grid-template-columns:1fr}}
+.edu .panel{padding:24px;display:flex;justify-content:space-between;gap:18px;align-items:flex-start}
+.edu h3{margin:0 0 6px;font-size:17px;color:var(--white);font-weight:600}
+.edu .m{font-family:var(--mono);font-size:12px;color:var(--dim)}
+.edu .y{font-family:var(--mono);font-size:22px;font-weight:700;color:transparent;background:linear-gradient(var(--cy),var(--vi));-webkit-background-clip:text;background-clip:text;line-height:1}
+
+/* ============================================================
+   CONTACT
+   ============================================================ */
+#contact{text-align:center}
+.contact-box{padding:clamp(36px,7vw,70px) 26px}
+.contact-box h2{font-size:clamp(28px,5.5vw,50px);color:var(--white);margin:0 0 16px;letter-spacing:-.02em;font-weight:600}
+.contact-box h2 em{font-style:normal;color:transparent;background:linear-gradient(100deg,var(--cy),var(--vi));-webkit-background-clip:text;background-clip:text}
+.contact-box p{max-width:52ch;margin:0 auto 34px;color:var(--dim);font-size:15.5px}
+/* cell outlines drawn per-cell, not via a background showing through the
+   gaps — otherwise a partly-filled last row paints as a solid block */
+.contact-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,230px),1fr));gap:1px;margin-top:44px;text-align:left}
+.cc{background:var(--bg);padding:20px 22px;transition:background .3s;box-shadow:0 0 0 1px var(--line)}
+.cc:hover{background:var(--bg-2)}
+.cc .k{font-family:var(--mono);font-size:10px;letter-spacing:.2em;color:var(--dim);text-transform:uppercase}
+.cc .v{font-family:var(--mono);font-size:13.5px;color:var(--white);margin-top:7px;word-break:break-all;transition:color .25s}
+.cc:hover .v{color:var(--cy)}
+
+footer{border-top:1px solid var(--line);margin-top:40px}
+.foot{
+  max-width:var(--max);margin:0 auto;padding:26px var(--gut);display:flex;justify-content:space-between;
+  gap:14px;flex-wrap:wrap;font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--dim);
+}
+.foot .live{color:var(--lime)}
+
+/* reduced motion */
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important}
+  html{scroll-behavior:auto}
+  .rv{opacity:1;transform:none}
+}
+</style>
+</head>
+<body>
+<script>document.documentElement.className += " js";</script>
+
+<!-- ================= BOOT ================= -->
+<div id="boot">
+  <div class="boot-inner">
+    <div class="boot-log" id="bootLog"></div>
+    <div class="boot-bar"><i id="bootBar"></i></div>
+    <div class="boot-pct"><span>INITIALIZING PORTFOLIO</span><span id="bootPct">00%</span></div>
+  </div>
+</div>
+
+<!-- ================= BACKDROP ================= -->
+<canvas id="bg-canvas"></canvas>
+<div class="grid-floor"></div>
+<div class="glow-a"></div>
+<div class="glow-b"></div>
+<div class="scanlines"></div>
+<div class="vignette"></div>
+
+<div id="progress"></div>
+<div id="cursor"></div>
+<div id="cursor-dot"></div>
+
+<!-- ================= NAV ================= -->
+<header id="hdr">
+  <nav class="nav">
+    <a href="#hero" class="brand"><span class="mark"><span>S</span></span> SMIT<span style="color:var(--cy)">.</span>CHAVAN</a>
+    <div class="links" id="links">
+      <a href="#about"><i>01</i>ABOUT</a>
+      <a href="#experience"><i>02</i>EXPERIENCE</a>
+      <a href="#skills"><i>03</i>SKILLS</a>
+      <a href="#projects"><i>04</i>PROJECTS</a>
+      <a href="#education"><i>05</i>EDUCATION</a>
+    </div>
+    <a href="#contact" class="nav-cta">CONNECT</a>
+    <button class="burger" id="burger" aria-label="Toggle menu"><span></span><span></span><span></span></button>
+  </nav>
+</header>
+
+<main>
+
+<!-- ================= HERO ================= -->
+<section id="hero">
+  <div class="hero-wrap">
+   <div class="hero-grid">
+    <div class="hero-left">
+    <div class="status"><span class="dot"></span> Available for high-impact builds</div>
+
+    <h1 class="hero-name">
+      <span class="glitch" data-text="SMIT">SMIT</span>
+      <span class="l2">CHAVAN</span>
+    </h1>
+
+    <p class="hero-role"><span class="pre">&gt;</span> <span class="tw" id="tw"></span><span class="caret"></span></p>
+
+    <p class="hero-desc">
+      Full Stack Developer &amp; Tech Lead currently leading a team of <b>4 MERN juniors and 2 AI interns</b>
+      at TGLevels — architecting the CRM, mobile app, admin panel and research systems behind a live trading
+      advisory business. MERN, React Native, and legacy PHP-to-MERN migrations in production.
+    </p>
+
+    <div class="hero-actions">
+      <a href="#projects" class="btn"><span>View Projects</span></a>
+      <a href="mailto:smitchavan42@gmail.com" class="btn ghost"><span>Get In Touch</span></a>
+    </div>
+    </div><!-- /hero-left -->
+
+    <aside class="panel hud">
+      <div class="hud-head">
+        <span class="t">SYS.MONITOR</span>
+        <span class="s">● ONLINE</span>
+      </div>
+      <div class="hud-row"><span class="k">ROLE</span><span class="v">Tech Lead</span></div>
+      <div class="hud-row"><span class="k">ORG</span><span class="v acc">TGLevels</span></div>
+      <div class="hud-row"><span class="k">TEAM</span><span class="v">4 MERN · 2 AI</span></div>
+      <div class="hud-row"><span class="k">STACK</span><span class="v">MERN / RN / PHP</span></div>
+      <div class="hud-row"><span class="k">REGION</span><span class="v">Navi Mumbai, IN</span></div>
+      <div class="hud-row"><span class="k">UPTIME</span><span class="v acc" id="uptime">—</span></div>
+
+      <div class="hud-meters">
+        <div class="meter"><div class="lbl"><span>FRONTEND</span></div><div class="track"><i class="fill" data-w="95"></i></div></div>
+        <div class="meter"><div class="lbl"><span>BACKEND</span></div><div class="track"><i class="fill" data-w="92"></i></div></div>
+        <div class="meter"><div class="lbl"><span>MOBILE / RN</span></div><div class="track"><i class="fill" data-w="90"></i></div></div>
+        <div class="meter"><div class="lbl"><span>DEVOPS / CLOUD</span></div><div class="track"><i class="fill" data-w="78"></i></div></div>
+      </div>
+
+      <canvas class="hud-wave" id="wave"></canvas>
+    </aside>
+   </div><!-- /hero-grid -->
+
+    <div class="stats">
+      <div class="stat"><div class="n"><span class="cnt" data-to="3">0</span><span class="u">+</span></div><div class="k">Years Shipping</div></div>
+      <div class="stat"><div class="n"><span class="cnt" data-to="8">0</span><span class="u">+</span></div><div class="k">Products Live</div></div>
+      <div class="stat"><div class="n"><span class="cnt" data-to="6">0</span></div><div class="k">Engineers Led</div></div>
+      <div class="stat"><div class="n"><span class="u">₹</span><span class="cnt" data-to="2">0</span><span class="u">L</span></div><div class="k">Daily Revenue Owned</div></div>
+    </div>
+
+    <div class="scroll-hint"><span>SCROLL</span><span class="rail"></span></div>
+  </div>
+</section>
+
+<!-- ================= ABOUT ================= -->
+<section id="about">
+  <div class="sec-head rv">
+    <div class="sec-tag">01 // Identity</div>
+    <h2 class="sec-title">Engineer who <em>owns the whole stack</em></h2>
+  </div>
+
+  <div class="about-grid">
+    <div class="about-copy rv">
+      <p>
+        I'm <b>Smit Nitin Chavan</b>, a Full Stack Developer and Tech Lead based in Navi Mumbai. I work across the
+        <span class="hl">MERN stack, React Native and PHP</span> — building products that carry real money and real users.
+      </p>
+      <p>
+        At <b>TGLevels</b>, a fintech-adjacent trading advisory firm, I lead a team of six and own end-to-end delivery for
+        the CRM, the customer-facing mobile app, the admin panel and the research analyst systems — while being the sole
+        maintainer of the legacy PHP stack during a parallel <span class="hl">PHP → MERN migration in production</span>.
+      </p>
+      <p>
+        Before that I shipped production React Native apps for funded startups (FatakPay, DealzUp, QuickTaxi) and built
+        <b>Node.js microservices</b> at slashRTC for enterprise clients like NoBroker.
+      </p>
+      <p>
+        I also trade algorithmically — which means I read fintech requirements the way a trader does, not just the way a
+        developer does.
+      </p>
+
+      <div class="chips">
+        <span class="chip">Team Leadership</span>
+        <span class="chip">System Architecture</span>
+        <span class="chip">Code Review</span>
+        <span class="chip">Legacy Migration</span>
+        <span class="chip">Algo Trading</span>
+        <span class="chip">Mentoring</span>
+      </div>
+    </div>
+
+    <div class="panel term rv">
+      <div class="term-bar">
+        <i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i>
+        <span class="t">smit@portfolio ~ whoami</span>
+      </div>
+      <div class="term-body">
+        <div class="row"><span class="p">$</span> cat profile.json</div>
+        <div class="row">{</div>
+        <div class="row">  <span class="k">"name"</span>: <span class="s">"Smit Nitin Chavan"</span>,</div>
+        <div class="row">  <span class="k">"role"</span>: <span class="s">"Full Stack Dev / Tech Lead"</span>,</div>
+        <div class="row">  <span class="k">"location"</span>: <span class="s">"Navi Mumbai, IN"</span>,</div>
+        <div class="row">  <span class="k">"core"</span>: [<span class="s">"MERN"</span>, <span class="s">"React Native"</span>, <span class="s">"Node.js"</span>],</div>
+        <div class="row">  <span class="k">"domains"</span>: [<span class="s">"Fintech"</span>, <span class="s">"Trading"</span>, <span class="s">"CRM"</span>, <span class="s">"Telecom"</span>],</div>
+        <div class="row">  <span class="k">"team_size"</span>: <span class="p">6</span>,</div>
+        <div class="row">  <span class="k">"education"</span>: <span class="s">"M.Sc. IT (2026)"</span>,</div>
+        <div class="row">  <span class="k">"status"</span>: <span class="s">"open_to_opportunities"</span></div>
+        <div class="row">}</div>
+        <div class="row"><span class="p">$</span> <span class="c">_</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= EXPERIENCE ================= -->
+<section id="experience">
+  <div class="sec-head rv">
+    <div class="sec-tag">02 // Trajectory</div>
+    <h2 class="sec-title">Where I've <em>built &amp; led</em></h2>
+  </div>
+
+  <div class="tl">
+    <article class="job now rv">
+      <div class="job-top">
+        <h3>Full Stack Developer &amp; Tech Lead</h3>
+        <div class="when now-tag">MAR 2024 — PRESENT</div>
+      </div>
+      <div class="where">TGLevels Trading Advisory Firm <span>· Navi Mumbai · 50 employees</span></div>
+      <ul>
+        <li><b>Leading and managing a team of 4 MERN Stack juniors and 2 AI interns.</b></li>
+        <li>Architecting and overseeing the CRM, customer-facing mobile app (React Native), admin panel, and Research Analyst panel.</li>
+        <li>Sole maintainer of legacy PHP systems while driving the parallel MERN migration in production.</li>
+        <li>Owning end-to-end delivery, code reviews, task allocation, and reliability for a business generating <b>Rs. 1–2L/day in revenue</b>.</li>
+        <li>Mentoring MERN Stack juniors and AI interns on production-grade development and best practices.</li>
+      </ul>
+    </article>
+
+    <article class="job rv">
+      <div class="job-top">
+        <h3>React Native Developer <span style="color:var(--dim);font-size:14px;font-weight:400">(Paid Internships)</span></h3>
+        <div class="when">NOV 2023 — MAR 2024</div>
+      </div>
+      <div class="where">FatakPay · DealzUp · QuickTaxi</div>
+      <ul>
+        <li>Built and shipped production React Native apps for multiple startups across fintech, on-demand, and retail domains.</li>
+        <li><b>FatakPay (funded fintech):</b> mobile loan app with full KYC flow, eligibility engine, and real-time disbursement tracking.</li>
+        <li><b>DealzUp (live in Canada):</b> Flipp-style deals &amp; offers discovery app with a personalized feed and push notifications.</li>
+        <li><b>QuickTaxi:</b> on-demand ride-booking app with real-time driver location tracking, fare calculation, and booking management.</li>
+        <li>Integrated Firebase, payment gateways, and third-party REST APIs across all three products.</li>
+      </ul>
+    </article>
+
+    <article class="job rv">
+      <div class="job-top">
+        <h3>Software Developer — Node.js &amp; React</h3>
+        <div class="when">NOV 2022 — NOV 2023</div>
+      </div>
+      <div class="where">slashRTC <span>· Navi Mumbai · 60 employees · Clients: NoBroker, Candere (Kalyan Jewellers)</span></div>
+      <ul>
+        <li>Developed Node.js microservices architecture supporting multiple enterprise clients.</li>
+        <li>Built React-based frontends and PHP backend modules for call-center operations.</li>
+        <li>Worked directly on NoBroker client integrations handling scale and reliability requirements.</li>
+        <li>Contributed to API design, database optimization, and cross-team deployments.</li>
+      </ul>
+    </article>
+  </div>
+</section>
+
+<!-- ================= SKILLS ================= -->
+<section id="skills">
+  <div class="sec-head rv">
+    <div class="sec-tag">03 // Arsenal</div>
+    <h2 class="sec-title">The <em>toolchain</em></h2>
+    <p class="sec-sub">Everything below is something I've shipped with in production — not a tutorial list.</p>
+  </div>
+
+  <div class="skills">
+    <div class="panel skill rv">
+      <h4>Frontend</h4>
+      <ul><li>React.js</li><li>React Native</li><li>Next.js</li><li>TypeScript</li><li>Redux</li><li>HTML5</li><li>CSS3</li></ul>
+    </div>
+    <div class="panel skill rv">
+      <h4>Backend</h4>
+      <ul><li>Node.js</li><li>Express.js</li><li>PHP</li><li>WebSockets</li><li>Socket.io</li><li>Microservices</li><li>REST APIs</li></ul>
+    </div>
+    <div class="panel skill rv">
+      <h4>Database</h4>
+      <ul><li>MongoDB</li><li>MySQL</li><li>Redis</li></ul>
+    </div>
+    <div class="panel skill rv">
+      <h4>DevOps / Cloud</h4>
+      <ul><li>AWS</li><li>Firebase</li><li>Docker</li><li>Git</li><li>CI/CD</li></ul>
+    </div>
+    <div class="panel skill rv">
+      <h4>AI / Integrations</h4>
+      <ul><li>Grok API</li><li>AI-driven CRM</li><li>Payment Gateways</li><li>Third-party APIs</li></ul>
+    </div>
+    <div class="panel skill rv">
+      <h4>Domains</h4>
+      <ul><li>Fintech</li><li>Trading / Algo Trading</li><li>CRM</li><li>Telecom</li></ul>
+    </div>
+  </div>
+</section>
+
+<!-- ================= PROJECTS ================= -->
+<section id="projects">
+  <div class="sec-head rv">
+    <div class="sec-tag">04 // Deployments</div>
+    <h2 class="sec-title">Things that are <em>live right now</em></h2>
+  </div>
+
+  <div class="projects">
+    <article class="panel proj feat rv">
+      <div class="proj-top">
+        <div>
+          <div class="idx">PROJECT_001</div>
+          <h3>Trading Advisory Platform</h3>
+        </div>
+        <span class="badge">Flagship · In Production</span>
+      </div>
+      <p>
+        End-to-end platform for a live trading advisory business generating <b style="color:var(--white)">Rs. 1–2L/day</b>:
+        a full CRM, a React Native customer app, an admin panel, and a research analyst panel — architected and delivered
+        with a team of six under my lead, alongside an in-flight PHP → MERN migration.
+      </p>
+      <div class="stack"><span>MERN</span><span>React Native</span><span>PHP</span><span>AWS</span><span>MongoDB</span></div>
+      <div class="proj-links">
+        <a href="https://app.tglevels.in" target="_blank" rel="noopener">app.tglevels.in</a>
+        <a href="https://lite.tglevels.in" target="_blank" rel="noopener">lite.tglevels.in</a>
+        <a href="https://admin.tglevels.com" target="_blank" rel="noopener">admin.tglevels.com</a>
+        <a href="https://research.tglevels.in" target="_blank" rel="noopener">research.tglevels.in</a>
+      </div>
+    </article>
+
+    <article class="panel proj rv">
+      <div class="proj-top">
+        <div><div class="idx">PROJECT_002</div><h3>FatakPay — Loan App</h3></div>
+        <span class="badge">Funded Fintech</span>
+      </div>
+      <p>Mobile loan application with a full KYC flow, eligibility engine, and real-time disbursement tracking. Built for a funded fintech and shipped to the Play Store.</p>
+      <div class="stack"><span>React Native</span><span>Node.js</span><span>MongoDB</span><span>Firebase</span></div>
+      <div class="proj-links"><a href="https://play.google.com/store/search?q=fatakpay&c=apps" target="_blank" rel="noopener">Google Play</a></div>
+    </article>
+
+    <article class="panel proj rv">
+      <div class="proj-top">
+        <div><div class="idx">PROJECT_003</div><h3>DealzUp — Deals Discovery</h3></div>
+        <span class="badge">Live in Canada</span>
+      </div>
+      <p>Flipp-style local deals &amp; offers discovery app with a personalized feed, category browsing, and push notifications.</p>
+      <div class="stack"><span>React Native</span><span>Redux</span><span>REST API</span></div>
+      <div class="proj-links"><a href="https://dealzup.ca" target="_blank" rel="noopener">dealzup.ca</a></div>
+    </article>
+
+    <article class="panel proj rv">
+      <div class="proj-top">
+        <div><div class="idx">PROJECT_004</div><h3>QuickTaxi — Ride Booking</h3></div>
+        <span class="badge">On-Demand</span>
+      </div>
+      <p>On-demand ride-booking app with real-time driver location tracking, fare calculation, and end-to-end booking management.</p>
+      <div class="stack"><span>React Native</span><span>Firebase</span><span>Node.js</span></div>
+      <div class="proj-links"><a href="https://quick-taxi.vercel.app" target="_blank" rel="noopener">quick-taxi.vercel.app</a></div>
+    </article>
+
+    <article class="panel proj rv">
+      <div class="proj-top">
+        <div><div class="idx">PROJECT_005</div><h3>Tox-AI — CRM Chat</h3></div>
+        <span class="badge">AI Powered</span>
+      </div>
+      <p>A CRM chat platform with an integrated AI assistant powered by the Grok API for automated, context-aware customer conversations.</p>
+      <div class="stack"><span>React</span><span>Node.js</span><span>Grok API</span></div>
+      <div class="proj-links"><a href="https://tox-frontend.vercel.app" target="_blank" rel="noopener">tox-frontend.vercel.app</a></div>
+    </article>
+  </div>
+</section>
+
+<!-- ================= EDUCATION ================= -->
+<section id="education">
+  <div class="sec-head rv">
+    <div class="sec-tag">05 // Foundations</div>
+    <h2 class="sec-title">Academic <em>record</em></h2>
+  </div>
+
+  <div class="edu">
+    <div class="panel rv">
+      <div>
+        <h3>M.Sc. Information Technology</h3>
+        <div class="m">Pillai College · Navi Mumbai, Maharashtra</div>
+      </div>
+      <div class="y">2026</div>
+    </div>
+    <div class="panel rv">
+      <div>
+        <h3>B.Sc. Information Technology</h3>
+        <div class="m">CKT College · New Panvel, Maharashtra</div>
+      </div>
+      <div class="y">2023</div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= CONTACT ================= -->
+<section id="contact">
+  <div class="panel contact-box rv">
+    <div class="sec-tag" style="justify-content:center">06 // Uplink</div>
+    <h2>Let's build something <em>that ships</em></h2>
+    <p>Open to full-stack, tech lead, and React Native roles — and to interesting fintech problems. Fastest way to reach me is email.</p>
+    <div class="hero-actions" style="justify-content:center">
+      <a href="mailto:smitchavan42@gmail.com" class="btn"><span>smitchavan42@gmail.com</span></a>
+      <a href="tel:+918104287670" class="btn ghost"><span>+91 81042 87670</span></a>
+    </div>
+
+    <div class="contact-grid">
+      <a class="cc" href="mailto:smitchavan42@gmail.com"><div class="k">Email</div><div class="v">smitchavan42@gmail.com</div></a>
+      <a class="cc" href="tel:+918104287670"><div class="k">Phone</div><div class="v">+91 81042 87670</div></a>
+      <a class="cc" href="https://github.com/SmitChavan24" target="_blank" rel="noopener"><div class="k">GitHub</div><div class="v">/SmitChavan24</div></a>
+      <a class="cc" href="https://linkedin.com/in/smit-chavan-406916284" target="_blank" rel="noopener"><div class="k">LinkedIn</div><div class="v">/smit-chavan</div></a>
+      <div class="cc"><div class="k">Location</div><div class="v">Navi Mumbai, MH</div></div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="foot">
+    <span>© <span id="yr"></span> SMIT NITIN CHAVAN</span>
+    <span class="live">● SYSTEM ONLINE</span>
+    <span>BUILT WITH VANILLA JS &amp; TOO MUCH COFFEE</span>
+  </div>
+</footer>
+
+<script>
+(function(){
+"use strict";
+var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+/* ---------------- BOOT SEQUENCE ---------------- */
+var bootLines = [
+  "> initializing kernel ......... <b>OK</b>",
+  "> mounting /dev/portfolio ..... <b>OK</b>",
+  "> loading profile: smit_chavan  <b>OK</b>",
+  "> stack: mern | react-native .. <b>OK</b>",
+  "> establishing uplink ......... <span class='ok'>READY</span>"
+];
+var logEl = document.getElementById("bootLog"),
+    barEl = document.getElementById("bootBar"),
+    pctEl = document.getElementById("bootPct"),
+    bootEl = document.getElementById("boot");
+
+function endBoot(){
+  bootEl.classList.add("done");
+  document.body.style.overflow = "";
+  setTimeout(function(){ bootEl.remove(); startTypewriter(); }, 700);
+}
+
+if (reduce) {
+  endBoot();
+} else {
+  document.body.style.overflow = "hidden";
+  var i = 0;
+  (function step(){
+    if (i < bootLines.length) {
+      logEl.innerHTML += bootLines[i] + "<br>";
+      i++;
+      var p = Math.round(i / bootLines.length * 100);
+      barEl.style.width = p + "%";
+      pctEl.textContent = (p < 10 ? "0" : "") + p + "%";
+      setTimeout(step, 220);
+    } else {
+      setTimeout(endBoot, 420);
+    }
+  })();
+}
+
+/* ---------------- TYPEWRITER ---------------- */
+var roles = ["Full Stack Developer","Tech Lead","React Native Engineer","MERN Architect","Node.js Developer","Algo Trader"];
+var twEl = document.getElementById("tw");
+function startTypewriter(){
+  if (reduce) { twEl.textContent = roles[0]; return; }
+  var r = 0, c = 0, del = false;
+  (function tick(){
+    var word = roles[r];
+    twEl.textContent = word.slice(0, c);
+    if (!del && c < word.length){ c++; setTimeout(tick, 62); }
+    else if (!del && c === word.length){ del = true; setTimeout(tick, 1500); }
+    else if (del && c > 0){ c--; setTimeout(tick, 28); }
+    else { del = false; r = (r + 1) % roles.length; setTimeout(tick, 260); }
+  })();
+}
+
+/* ---------------- PARTICLE NETWORK ---------------- */
+(function(){
+  if (reduce) return;
+  var cv = document.getElementById("bg-canvas"), ctx = cv.getContext("2d");
+  var pts = [], mouse = { x: -9999, y: -9999 }, w = 0, h = 0, dpr = Math.min(devicePixelRatio || 1, 2);
+
+  function resize(){
+    /* the canvas is sized by CSS (position:fixed;inset:0) — only the
+       backing store needs setting. clientWidth/Height are read-only. */
+    w = innerWidth;
+    h = innerHeight;
+    cv.width = w * dpr; cv.height = h * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    var count = Math.min(170, Math.round(w * h / 13000));
+    pts = [];
+    for (var i = 0; i < count; i++){
+      pts.push({
+        x: Math.random() * w, y: Math.random() * h,
+        vx: (Math.random() - .5) * .28, vy: (Math.random() - .5) * .28,
+        r: Math.random() * 1.4 + .5
+      });
+    }
+  }
+
+  var last = 0;
+  function draw(now){
+    requestAnimationFrame(draw);
+    if (document.hidden) return;
+    if (now - last < 32) return;   // cap ~30fps, plenty for a backdrop
+    last = now;
+
+    ctx.clearRect(0, 0, w, h);
+    for (var i = 0; i < pts.length; i++){
+      var p = pts[i];
+      p.x += p.vx; p.y += p.vy;
+      if (p.x < 0 || p.x > w) p.vx *= -1;
+      if (p.y < 0 || p.y > h) p.vy *= -1;
+
+      var dxm = p.x - mouse.x, dym = p.y - mouse.y;
+      var dm = Math.sqrt(dxm * dxm + dym * dym);
+      var near = dm < 150;
+
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, 6.2832);
+      ctx.fillStyle = near ? "rgba(34,240,255,1)" : "rgba(170,215,255,.6)";
+      ctx.fill();
+
+      for (var j = i + 1; j < pts.length; j++){
+        var q = pts[j], dx = p.x - q.x, dy = p.y - q.y;
+        var d2 = dx * dx + dy * dy;
+        if (d2 < 16900){
+          var a = (1 - d2 / 16900) * .42;
+          ctx.beginPath();
+          ctx.moveTo(p.x, p.y); ctx.lineTo(q.x, q.y);
+          ctx.strokeStyle = "rgba(34,240,255," + a.toFixed(3) + ")";
+          ctx.lineWidth = .7;
+          ctx.stroke();
+        }
+      }
+
+      if (near){
+        ctx.beginPath();
+        ctx.moveTo(p.x, p.y); ctx.lineTo(mouse.x, mouse.y);
+        ctx.strokeStyle = "rgba(192,132,252," + ((1 - dm / 150) * .65).toFixed(3) + ")";
+        ctx.lineWidth = .9;
+        ctx.stroke();
+      }
+    }
+  }
+
+  addEventListener("resize", resize, { passive: true });
+  addEventListener("mousemove", function(e){ mouse.x = e.clientX; mouse.y = e.clientY; }, { passive: true });
+  addEventListener("mouseout", function(){ mouse.x = mouse.y = -9999; });
+  resize(); requestAnimationFrame(draw);
+})();
+
+/* ---------------- CURSOR ---------------- */
+(function(){
+  if (matchMedia("(hover:none)").matches) return;
+  var ring = document.getElementById("cursor"), dot = document.getElementById("cursor-dot");
+  var tx = 0, ty = 0, rx = 0, ry = 0;
+  addEventListener("mousemove", function(e){
+    tx = e.clientX; ty = e.clientY;
+    dot.style.transform = "translate(" + tx + "px," + ty + "px)";
+  }, { passive: true });
+  (function loop(){
+    rx += (tx - rx) * .16; ry += (ty - ry) * .16;
+    ring.style.transform = "translate(" + rx + "px," + ry + "px)";
+    requestAnimationFrame(loop);
+  })();
+  document.addEventListener("mouseover", function(e){
+    if (e.target.closest("a,button,.chip,.skill li,.stat")) ring.classList.add("grow");
+  });
+  document.addEventListener("mouseout", function(e){
+    if (e.target.closest("a,button,.chip,.skill li,.stat")) ring.classList.remove("grow");
+  });
+})();
+
+/* ---------------- SCROLL: progress, nav, spy ---------------- */
+var hdr = document.getElementById("hdr"), prog = document.getElementById("progress");
+/* scoped to #links — .links alone would also match project link groups,
+   whose hrefs are absolute URLs and blow up querySelector */
+var navLinks = Array.prototype.slice.call(document.querySelectorAll("#links a"));
+var sections = navLinks.map(function(a){
+  var href = a.getAttribute("href");
+  return href && href.charAt(0) === "#" ? document.querySelector(href) : null;
+});
+
+function onScroll(){
+  var y = scrollY;
+  var max = document.documentElement.scrollHeight - innerHeight;
+  prog.style.width = (max > 0 ? (y / max) * 100 : 0) + "%";
+  hdr.classList.toggle("stuck", y > 40);
+
+  var idx = -1;
+  for (var i = 0; i < sections.length; i++){
+    if (sections[i] && sections[i].offsetTop - 140 <= y) idx = i;
+  }
+  navLinks.forEach(function(a, i){ a.classList.toggle("active", i === idx); });
+}
+addEventListener("scroll", onScroll, { passive: true });
+onScroll();
+
+/* ---------------- MOBILE MENU ---------------- */
+var burger = document.getElementById("burger"), links = document.getElementById("links");
+burger.addEventListener("click", function(){
+  burger.classList.toggle("open");
+  links.classList.toggle("open");
+});
+links.addEventListener("click", function(e){
+  if (e.target.tagName === "A"){ burger.classList.remove("open"); links.classList.remove("open"); }
+});
+
+/* ---------------- REVEAL + COUNTERS ---------------- */
+var io = new IntersectionObserver(function(entries){
+  entries.forEach(function(en){
+    if (!en.isIntersecting) return;
+    en.target.classList.add("in");
+    io.unobserve(en.target);
+  });
+}, { threshold: .12, rootMargin: "0px 0px -60px 0px" });
+
+document.querySelectorAll(".rv").forEach(function(el, i){
+  el.style.transitionDelay = (i % 4) * 70 + "ms";
+  io.observe(el);
+});
+
+var cio = new IntersectionObserver(function(entries){
+  entries.forEach(function(en){
+    if (!en.isIntersecting) return;
+    var el = en.target, to = +el.dataset.to, t0 = performance.now(), dur = 1200;
+    (function anim(now){
+      var p = Math.min((now - t0) / dur, 1);
+      el.textContent = Math.round(to * (1 - Math.pow(1 - p, 3)));
+      if (p < 1) requestAnimationFrame(anim);
+    })(t0);
+    cio.unobserve(el);
+  });
+}, { threshold: .6 });
+document.querySelectorAll(".cnt").forEach(function(el){ cio.observe(el); });
+
+/* ---------------- PANEL SPOTLIGHT ---------------- */
+document.querySelectorAll(".panel").forEach(function(p){
+  p.addEventListener("mousemove", function(e){
+    var r = p.getBoundingClientRect();
+    p.style.setProperty("--mx", (e.clientX - r.left) + "px");
+    p.style.setProperty("--my", (e.clientY - r.top) + "px");
+  });
+});
+
+document.getElementById("yr").textContent = new Date().getFullYear();
+
+/* ---------------- HERO HUD ---------------- */
+(function(){
+  /* uptime = time since first professional role (Nov 2022) */
+  var start = new Date(2022, 10, 1), up = document.getElementById("uptime");
+  if (up) {
+    (function tickUp(){
+      var ms = Date.now() - start;
+      var y = Math.floor(ms / 31557600000);
+      var d = Math.floor((ms % 31557600000) / 86400000);
+      up.textContent = y + "y " + d + "d";
+      setTimeout(tickUp, 60000);
+    })();
+  }
+
+  /* meters fill once the hero HUD is on screen */
+  var fills = document.querySelectorAll(".meter .fill");
+  if (fills.length) {
+    var mio = new IntersectionObserver(function(en){
+      en.forEach(function(e){
+        if (!e.isIntersecting) return;
+        e.target.style.width = e.target.dataset.w + "%";
+        mio.unobserve(e.target);
+      });
+    }, { threshold: .4 });
+    fills.forEach(function(f){ mio.observe(f); });
+  }
+
+  /* pulse waveform */
+  var wv = document.getElementById("wave");
+  if (!wv || reduce) return;
+  var wc = wv.getContext("2d"), dpr = Math.min(devicePixelRatio || 1, 2), ww, wh, t = 0, lastW = 0;
+
+  function sizeWave(){
+    ww = wv.clientWidth; wh = wv.clientHeight;
+    wv.width = ww * dpr; wv.height = wh * dpr;
+    wc.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+
+  function drawWave(now){
+    requestAnimationFrame(drawWave);
+    if (document.hidden || now - lastW < 40) return;
+    lastW = now; t += .06;
+
+    wc.clearRect(0, 0, ww, wh);
+    var grad = wc.createLinearGradient(0, 0, ww, 0);
+    grad.addColorStop(0, "rgba(0,229,255,0)");
+    grad.addColorStop(.5, "rgba(0,229,255,.9)");
+    grad.addColorStop(1, "rgba(168,85,247,0)");
+    wc.strokeStyle = grad; wc.lineWidth = 1.4;
+    wc.beginPath();
+    for (var x = 0; x <= ww; x++){
+      var n = x / ww;
+      var y = wh / 2
+        + Math.sin(n * 9 + t) * 9 * Math.sin(n * Math.PI)
+        + Math.sin(n * 23 - t * 1.7) * 4 * Math.sin(n * Math.PI);
+      x ? wc.lineTo(x, y) : wc.moveTo(x, y);
+    }
+    wc.stroke();
+  }
+
+  addEventListener("resize", sizeWave, { passive: true });
+  sizeWave(); requestAnimationFrame(drawWave);
+})();
+})();
+</script>
+</body>
+</html>
